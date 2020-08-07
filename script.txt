@@ -1,0 +1,166 @@
+*************** Create Tables ***************
+
+SQL> CREATE TABLE books (
+  2  book_code varchar(10),
+  3  book_title varchar(30),
+  4  book_author varchar(30),
+  5  issue_status varchar(20) default 'Not Issued',
+  6  is_issuable number(1) default 1,
+  7  CONSTRAINT book_code_pk PRIMARY KEY(book_code),
+  8  CONSTRAINT issue_status_check CHECK(issue_status IN('Issued','Not Issued','issued','not issued','ISSUED','NOT ISSUED')),
+  9  CONSTRAINT is_issuable_check CHECK(is_issuable IN(1,0))
+ 10  );
+
+Table created.
+
+
+SQL> CREATE TABLE members (
+  2  member_code varchar(10),
+  3  member_name varchar(30),
+  4  member_type varchar(10),
+  5  no_of_books_issued number(2),
+  6  CONSTRAINT member_code_pk PRIMARY KEY (member_code),
+  7  CONSTRAINT member_type_check CHECK (member_type IN ('Student','Faculty','student','faculty','STUDENT','FACULTY'))
+  8  );
+
+Table created.
+
+
+SQL> CREATE SEQUENCE issue_serial_no_seq INCREMENT BY 1;
+
+Sequence created.
+
+
+SQL> CREATE TABLE book_issued_by (
+  2  issue_serial_no number(5) default issue_serial_no_seq.nextval,
+  3  book_code varchar(10),
+  4  member_code varchar(10),
+  5  date_of_issue date default SYSDATE,
+  6  date_of_return date,
+  7  CONSTRAINT issue_serial_no_pk PRIMARY KEY (issue_serial_no),
+  8  CONSTRAINT book_code_fk FOREIGN KEY (book_code) REFERENCES books(book_code),
+  9  CONSTRAINT member_code_fk FOREIGN KEY (member_code) REFERENCES members (member_code)
+ 10  );
+
+Table created.
+-----------------------------------------------------------------
+
+
+
+*************** Insert Records ***************
+
+SQL> INSERT ALL
+  2  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B101', 'AAA', 'BBB', 'Issued')
+  3  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B102', 'CCC', 'DDD', 'Issued')
+  4  INTO books (book_code, book_title, book_author, is_issuable) VALUES ('B103', 'EEE', 'FFF', 0)
+  5  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B104', 'GGG', 'HHH', 'Issued')
+  6  INTO books (book_code, book_title, book_author) VALUES ('B105', 'III', 'JJJ')
+  7  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B106', 'KKK', 'LLL', 'Issued')
+  8  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B107', 'MMM', 'NNN', 'Issued')
+  9  INTO books (book_code, book_title, book_author) VALUES ('B108', 'OOO', 'PPP')
+ 10  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B109', 'QQQ', 'RRR', 'Issued')
+ 11  INTO books (book_code, book_title, book_author, issue_status) VALUES ('B110', 'SSS', 'TTT', 'Issued')
+ 12  SELECT * FROM DUAL;
+
+10 rows created.
+
+
+SQL> INSERT ALL
+  2  INTO members VALUES ('M001', 'Sayali', 'Student', 0)
+  3  INTO members VALUES ('M002', 'Pragati', 'Student', 1)
+  4  INTO members VALUES ('M003', 'Shreyas', 'Student', 1)
+  5  INTO members VALUES ('M004', 'Deshmukh', 'Faculty', 0)
+  6  INTO members VALUES ('M005', 'Patil', 'Faculty', 1)
+  7  INTO members VALUES ('M006', 'Neha', 'Student', 1)
+  8  INTO members VALUES ('M007', 'Shinde', 'Faculty', 0)
+  9  INTO members VALUES ('M008', 'Salunkhe', 'Faculty', 1)
+ 10  INTO members VALUES ('M009', 'Pratik', 'Student', 2)
+ 11  INTO members VALUES ('M010', 'Sakshi', 'Student', 0)
+ 12  SELECT * FROM DUAL;
+
+10 rows created.
+
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B101', 'M002', SYSDATE+10);
+
+1 row created.
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B102', 'M003', SYSDATE+10);
+
+1 row created.
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B104', 'M005', SYSDATE+90);
+
+1 row created.
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B106', 'M006', SYSDATE+10);
+
+1 row created.
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B107', 'M008', SYSDATE+90);
+
+1 row created.
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B109', 'M009', SYSDATE+10);
+
+1 row created.
+
+SQL> INSERT INTO book_issued_by (book_code, member_code, date_of_return) VALUES ('B110', 'M009', SYSDATE+10);
+
+1 row created.
+-----------------------------------------------------------------
+
+
+
+*************** Display Records ***************
+
+SQL> SET LINESIZE 32000;
+SQL> SELECT * FROM books;
+
+BOOK_CODE  BOOK_TITLE                     BOOK_AUTHOR                    ISSUE_STATUS         IS_ISSUABLE
+---------- ------------------------------ ------------------------------ -------------------- -----------
+B101       AAA                            BBB                            Issued                         1
+B102       CCC                            DDD                            Issued                         1
+B103       EEE                            FFF                            Not Issued                     0
+B104       GGG                            HHH                            Issued                         1
+B105       III                            JJJ                            Not Issued                     1
+B106       KKK                            LLL                            Issued                         1
+B107       MMM                            NNN                            Issued                         1
+B108       OOO                            PPP                            Not Issued                     1
+B109       QQQ                            RRR                            Issued                         1
+B110       SSS                            TTT                            Issued                         1
+
+10 rows selected.
+
+
+SQL> SELECT * FROM members;
+
+MEMBER_COD MEMBER_NAME                    MEMBER_TYP NO_OF_BOOKS_ISSUED
+---------- ------------------------------ ---------- ------------------
+M001       Sayali                         Student                     0
+M002       Pragati                        Student                     1
+M003       Shreyas                        Student                     1
+M004       Deshmukh                       Faculty                     0
+M005       Patil                          Faculty                     1
+M006       Neha                           Student                     1
+M007       Shinde                         Faculty                     0
+M008       Salunkhe                       Faculty                     1
+M009       Pratik                         Student                     2
+M010       Sakshi                         Student                     0
+
+10 rows selected.
+
+
+SQL> SELECT * FROM book_issued_by;
+
+ISSUE_SERIAL_NO BOOK_CODE  MEMBER_COD DATE_OF_I DATE_OF_R
+--------------- ---------- ---------- --------- ---------
+              1 B101       M002       07-AUG-20 17-AUG-20
+              2 B102       M003       07-AUG-20 17-AUG-20
+              3 B104       M005       07-AUG-20 05-NOV-20
+              4 B106       M006       07-AUG-20 17-AUG-20
+              5 B107       M008       07-AUG-20 05-NOV-20
+              6 B109       M009       07-AUG-20 17-AUG-20
+              7 B110       M009       07-AUG-20 17-AUG-20
+
+7 rows selected.
